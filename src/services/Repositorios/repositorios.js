@@ -1,8 +1,8 @@
 import api from "../api";
 
-export async function pegarRepositoriosDoUsuario(id) {
+export async function pegarRepositoriosDoUsuario(login) {
   try {
-    const resultado = await api.get(`/repos?postId=${id}`);
+    const resultado = await api.get(`/users/${login}/repos`);
     return resultado.data;
   } catch (error) {
     console.log(error);
@@ -18,20 +18,19 @@ export async function salvarRepositoriosDoUsuario(postId, nome, data, id) {
       postId: postId,
       id: id,
     });
-    return "sucesso";
+    return true;
   } catch (error) {
     console.log(error);
-    return "erro";
+    return false;
   }
 }
 
 //Esta pesquisa trás o repositório por parte da palavra
-export async function PegarRepositoriosDoUsuarioPeloNome(id, nome) {
+export async function pegarRepositoriosDoUsuarioPeloNome(login, nome) {
   //Pesquisar por trecho de palavra no campo nome
   try {
     // Realiza uma consulta para obter todos os repositórios do usuário (ou apropriada para sua API)
-    const allRepository = await api.get(`/repos?postId=${id}`);
-
+    const allRepository = await api.get(`/users/${login}/repos`);
     // Filtra os repositórios com base na parte do nome fornecida
     const repositoriosFiltrados = allRepository.data.filter((repositorio) => {
       const nomeRepositorio = repositorio.name.toLowerCase();
@@ -45,12 +44,26 @@ export async function PegarRepositoriosDoUsuarioPeloNome(id, nome) {
   }
 }
 
-export async function criarRepositorio() {
+export async function criarRepositorio(postId, nome, data) {
   try {
-    const resultado = await api.post(`/repos`);
-    return resultado.data;
+    await api.post(`/repos`, {
+      name: nome,
+      data: data,
+      postId: postId,
+    });
+    return true;
   } catch (error) {
     console.log(error);
-    return [];
+    return false;
+  }
+}
+
+export async function deleteRepositorio(id) {
+  try {
+    await api.delete(`/repos/${id}`);
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
   }
 }

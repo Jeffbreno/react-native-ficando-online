@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, FlatList, TouchableOpacity, TextInput } from "react-native";
 import estilos from "./estilos";
-import { PegarRepositoriosDoUsuarioPeloNome, pegarRepositoriosDoUsuario } from "../../services/Repositorios/repositorios";
+import { pegarRepositoriosDoUsuarioPeloNome, pegarRepositoriosDoUsuario } from "../../services/Repositorios/repositorios";
 import { useIsFocused } from "@react-navigation/native";
+import { formatDate } from "../../formatDate";
 
 export default function Repositorios({ route, navigation }) {
   const [repo, setRepo] = useState([]);
   const [nomeRepo, setNomeRepo] = useState("");
   const estaNaTela = useIsFocused();
+
   const pegandoRepositorio = async () => {
-    const resultado = await pegarRepositoriosDoUsuario(route.params.id);
+    const resultado = await pegarRepositoriosDoUsuario(route.params.login);
     setRepo(resultado);
   };
 
@@ -18,9 +20,10 @@ export default function Repositorios({ route, navigation }) {
   }, [estaNaTela]);
 
   async function buscarRepositorioPorNome() {
-    const resultado = await PegarRepositoriosDoUsuarioPeloNome(route.params.id, nomeRepo);
+    const resultado = await pegarRepositoriosDoUsuarioPeloNome(route.params.login, nomeRepo);
     setRepo(resultado);
     setNomeRepo("");
+    console.log("Busca feita com sucesso");
   }
 
   return (
@@ -30,7 +33,7 @@ export default function Repositorios({ route, navigation }) {
         <Text style={estilos.textoBotao}>Buscar</Text>
       </TouchableOpacity>
       <Text style={estilos.repositoriosTexto}>{repo.length} repositórios criados</Text>
-      <TouchableOpacity style={estilos.botao} onPress={() => navigation.navigate("CriarRepositorio")}>
+      <TouchableOpacity style={estilos.botao} onPress={() => navigation.navigate("CriarRepositorio", { id: route.params.id })}>
         <Text style={estilos.textoBotao}>Adicionar novo repositório</Text>
       </TouchableOpacity>
       <FlatList
@@ -40,7 +43,8 @@ export default function Repositorios({ route, navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity style={estilos.repositorio} onPress={() => navigation.navigate("InfoRepositorio", { item })}>
             <Text style={estilos.repositorioNome}>{item.name}</Text>
-            <Text style={estilos.repositorioData}>Atualizado em {item.data}</Text>
+            <Text style={estilos.repositorioData}>Criado em {formatDate(item.created_at)}</Text>
+            <Text style={estilos.repositorioData}>Atualizado em {formatDate(item.updated_at)}</Text>
           </TouchableOpacity>
         )}
       />
